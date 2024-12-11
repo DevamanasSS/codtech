@@ -1,0 +1,125 @@
+import getpass
+
+class SocialNetworkingSite:
+    def __init__(self):
+        self.users = {}
+        self.connections = {}
+        self.messages = {}
+        self.news_feed = []
+
+    def sign_up(self):
+        username = input("Enter a username: ")
+        password = getpass.getpass("Enter a password: ")
+        if username in self.users:
+            print("Username already exists. Please try again.")
+        else:
+            self.users[username] = {"password": password, "profile": {}, "connections": [], "notifications": []}
+            print("Sign-up successful!")
+
+    def login(self):
+        username = input("Enter your username: ")
+        password = getpass.getpass("Enter your password: ")
+        if username in self.users and self.users[username]["password"] == password:
+            print(f"Welcome back, {username}!")
+            return username
+        else:
+            print("Invalid username or password.")
+            return None
+
+    def update_profile(self, username):
+        print("Update Profile")
+        name = input("Enter your name: ")
+        bio = input("Enter your bio: ")
+        self.users[username]["profile"] = {"name": name, "bio": bio}
+        print("Profile updated successfully!")
+
+    def add_connection(self, username):
+        friend = input("Enter the username of the person you want to connect with: ")
+        if friend in self.users and friend != username:
+            if friend not in self.users[username]["connections"]:
+                self.users[username]["connections"].append(friend)
+                self.users[friend]["connections"].append(username)
+                print(f"You are now connected with {friend}.")
+            else:
+                print("You are already connected with this user.")
+        else:
+            print("User does not exist or invalid username.")
+
+    def send_message(self, username):
+        recipient = input("Enter the username of the recipient: ")
+        if recipient in self.users:
+            message = input("Enter your message: ")
+            if recipient not in self.messages:
+                self.messages[recipient] = []
+            self.messages[recipient].append({"sender": username, "message": message})
+            print("Message sent successfully!")
+        else:
+            print("User does not exist.")
+
+    def view_messages(self, username):
+        print("Your Messages:")
+        if username in self.messages:
+            for msg in self.messages[username]:
+                print(f"From {msg['sender']}: {msg['message']}")
+        else:
+            print("No messages found.")
+
+    def post_to_feed(self, username):
+        post = input("Write your post: ")
+        self.news_feed.append({"user": username, "post": post})
+        print("Post added to your news feed!")
+
+    def view_feed(self):
+        print("News Feed:")
+        for post in self.news_feed:
+            print(f"{post['user']}: {post['post']}")
+
+    def run(self):
+        while True:
+            print("\nSocial Networking Site")
+            print("1. Sign Up")
+            print("2. Log In")
+            print("3. Exit")
+            choice = input("Enter your choice (1-3): ")
+
+            if choice == "1":
+                self.sign_up()
+            elif choice == "2":
+                username = self.login()
+                if username:
+                    while True:
+                        print("\nDashboard")
+                        print("1. Update Profile")
+                        print("2. Add Connection")
+                        print("3. Send Message")
+                        print("4. View Messages")
+                        print("5. Post to Feed")
+                        print("6. View Feed")
+                        print("7. Log Out")
+                        user_choice = input("Enter your choice (1-7): ")
+
+                        if user_choice == "1":
+                            self.update_profile(username)
+                        elif user_choice == "2":
+                            self.add_connection(username)
+                        elif user_choice == "3":
+                            self.send_message(username)
+                        elif user_choice == "4":
+                            self.view_messages(username)
+                        elif user_choice == "5":
+                            self.post_to_feed(username)
+                        elif user_choice == "6":
+                            self.view_feed()
+                        elif user_choice == "7":
+                            print("Logging out...")
+                            break
+                        else:
+                            print("Invalid choice. Please try again.")
+            elif choice == "3":
+                print("Exiting Social Networking Site. Goodbye!")
+                break
+            else:
+                print("Invalid choice. Please try again.")
+
+sns = SocialNetworkingSite()
+sns.run()
