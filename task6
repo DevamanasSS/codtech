@@ -1,0 +1,143 @@
+import getpass
+
+class OnlineMarketplace:
+    def __init__(self):
+        self.users = {}
+        self.products = {}
+        self.orders = []
+
+    def sign_up(self):
+        username = input("Enter a username: ")
+        password = getpass.getpass("Enter a password: ")
+        if username in self.users:
+            print("Username already exists. Please try again.")
+        else:
+            self.users[username] = {"password": password, "storefront": [], "cart": [], "orders": []}
+            print("Sign-up successful!")
+
+    def login(self):
+        username = input("Enter your username: ")
+        password = getpass.getpass("Enter your password: ")
+        if username in self.users and self.users[username]["password"] == password:
+            print(f"Welcome back, {username}!")
+            return username
+        else:
+            print("Invalid username or password.")
+            return None
+
+    def add_product(self, username):
+        product_id = input("Enter product ID: ")
+        title = input("Enter product title: ")
+        description = input("Enter product description: ")
+        price = float(input("Enter product price: "))
+        stock = int(input("Enter stock quantity: "))
+        self.products[product_id] = {
+            "title": title,
+            "description": description,
+            "price": price,
+            "stock": stock,
+            "seller": username,
+            "ratings": [],
+        }
+        self.users[username]["storefront"].append(product_id)
+        print(f"Product '{title}' added successfully.")
+
+    def view_products(self):
+        print("Available Products:")
+        for product_id, details in self.products.items():
+            print(f"ID: {product_id}, Title: {details['title']}, Price: ${details['price']:.2f}, Stock: {details['stock']}, Seller: {details['seller']}")
+
+    def add_to_cart(self, username):
+        product_id = input("Enter the product ID to add to cart: ")
+        if product_id in self.products and self.products[product_id]["stock"] > 0:
+            self.users[username]["cart"].append(product_id)
+            print(f"Product '{self.products[product_id]['title']}' added to your cart.")
+        else:
+            print("Invalid product ID or out of stock.")
+
+    def checkout(self, username):
+        print("Your Cart:")
+        total = 0
+        for product_id in self.users[username]["cart"]:
+            product = self.products[product_id]
+            print(f"Title: {product['title']}, Price: ${product['price']:.2f}")
+            total += product["price"]
+        print(f"Total: ${total:.2f}")
+        confirm = input("Do you want to checkout? (yes/no): ").lower()
+        if confirm == "yes":
+            for product_id in self.users[username]["cart"]:
+                self.products[product_id]["stock"] -= 1
+                self.orders.append({"buyer": username, "product_id": product_id})
+            self.users[username]["cart"] = []
+            print("Order placed successfully!")
+        else:
+            print("Checkout cancelled.")
+
+    def view_orders(self, username):
+        print("Your Orders:")
+        for order in self.orders:
+            if order["buyer"] == username:
+                product = self.products[order["product_id"]]
+                print(f"Product: {product['title']}, Seller: {product['seller']}")
+
+    def rate_product(self):
+        product_id = input("Enter the product ID to rate: ")
+        if product_id in self.products:
+            rating = int(input("Enter your rating (1-5): "))
+            if 1 <= rating <= 5:
+                self.products[product_id]["ratings"].append(rating)
+                print("Thank you for your feedback!")
+            else:
+                print("Invalid rating. Must be between 1 and 5.")
+        else:
+            print("Invalid product ID.")
+
+    def run(self):
+        while True:
+            print("\nOnline Marketplace")
+            print("1. Sign Up")
+            print("2. Log In")
+            print("3. Exit")
+            choice = input("Enter your choice (1-3): ")
+
+            if choice == "1":
+                self.sign_up()
+            elif choice == "2":
+                username = self.login()
+                if username:
+                    while True:
+                        print("\nDashboard")
+                        print("1. Add Product")
+                        print("2. View Products")
+                        print("3. Add to Cart")
+                        print("4. Checkout")
+                        print("5. View Orders")
+                        print("6. Rate Product")
+                        print("7. Log Out")
+                        user_choice = input("Enter your choice (1-7): ")
+
+                        if user_choice == "1":
+                            self.add_product(username)
+                        elif user_choice == "2":
+                            self.view_products()
+                        elif user_choice == "3":
+                            self.add_to_cart(username)
+                        elif user_choice == "4":
+                            self.checkout(username)
+                        elif user_choice == "5":
+                            self.view_orders(username)
+                        elif user_choice == "6":
+                            self.rate_product()
+                        elif user_choice == "7":
+                            print("Logging out...")
+                            break
+                        else:
+                            print("Invalid choice. Please try again.")
+            elif choice == "3":
+                print("Exiting Online Marketplace. Goodbye!")
+                break
+            else:
+                print("Invalid choice. Please try again.")
+
+marketplace = OnlineMarketplace()
+marketplace.run()
