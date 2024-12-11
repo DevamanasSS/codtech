@@ -1,0 +1,105 @@
+import getpass
+
+class InventoryManagementSystem:
+    def __init__(self):
+        self.inventory = {}
+        self.users = {"admin": "password123"}
+
+    def authenticate_user(self):
+        username = input("Enter username: ")
+        password = getpass.getpass("Enter password: ")
+        if username in self.users and self.users[username] == password:
+            print("Login successful!")
+            return True
+        else:
+            print("Invalid username or password.")
+            return False
+
+    def add_product(self):
+        product_name = input("Enter product name: ")
+        try:
+            quantity = int(input("Enter quantity: "))
+            price = float(input("Enter price per unit: "))
+            if product_name in self.inventory:
+                self.inventory[product_name]['quantity'] += quantity
+                self.inventory[product_name]['price'] = price
+            else:
+                self.inventory[product_name] = {'quantity': quantity, 'price': price}
+            print(f"Product {product_name} added/updated successfully.")
+        except ValueError:
+            print("Invalid input. Quantity and price must be numbers.")
+
+    def edit_product(self):
+        product_name = input("Enter product name to edit: ")
+        if product_name in self.inventory:
+            try:
+                quantity = int(input("Enter new quantity: "))
+                price = float(input("Enter new price per unit: "))
+                self.inventory[product_name] = {'quantity': quantity, 'price': price}
+                print(f"Product {product_name} updated successfully.")
+            except ValueError:
+                print("Invalid input. Quantity and price must be numbers.")
+        else:
+            print("Product not found.")
+
+    def delete_product(self):
+        product_name = input("Enter product name to delete: ")
+        if product_name in self.inventory:
+            del self.inventory[product_name]
+            print(f"Product {product_name} deleted successfully.")
+        else:
+            print("Product not found.")
+
+    def display_inventory(self):
+        if self.inventory:
+            print("\nCurrent Inventory:")
+            for product, details in self.inventory.items():
+                print(f"{product}: Quantity = {details['quantity']}, Price per unit = {details['price']}")
+        else:
+            print("Inventory is empty.")
+
+    def generate_low_stock_report(self):
+        try:
+            threshold = int(input("Enter low stock threshold: "))
+            print("\nLow Stock Report:")
+            low_stock_items = {product: details for product, details in self.inventory.items() if details['quantity'] <= threshold}
+            if low_stock_items:
+                for product, details in low_stock_items.items():
+                    print(f"{product}: Quantity = {details['quantity']}")
+            else:
+                print("No items are below the threshold.")
+        except ValueError:
+            print("Invalid input. Threshold must be a number.")
+
+    def run(self):
+        authenticated = False
+        while not authenticated:
+            authenticated = self.authenticate_user()
+        while True:
+            print("\nInventory Management System")
+            print("1. Add Product")
+            print("2. Edit Product")
+            print("3. Delete Product")
+            print("4. Display Inventory")
+            print("5. Generate Low Stock Report")
+            print("6. Exit")
+            choice = input("Enter your choice (1-6): ")
+
+            if choice == "1":
+                self.add_product()
+            elif choice == "2":
+                self.edit_product()
+            elif choice == "3":
+                self.delete_product()
+            elif choice == "4":
+                self.display_inventory()
+            elif choice == "5":
+                self.generate_low_stock_report()
+            elif choice == "6":
+                print("Exiting Inventory Management System.")
+                break
+            else:
+                print("Invalid choice. Please select a valid option.")
+
+ims = InventoryManagementSystem()
+ims.run()
