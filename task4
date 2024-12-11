@@ -1,0 +1,105 @@
+import getpass
+
+class LibraryManagementSystem:
+    def __init__(self):
+        self.resources = {}
+        self.checked_out = {}
+        self.users = {"admin": "password123"}
+
+    def authenticate_user(self):
+        username = input("Enter username: ")
+        password = getpass.getpass("Enter password: ")
+        if username in self.users and self.users[username] == password:
+            print("Login successful!")
+            return True
+        else:
+            print("Invalid username or password.")
+            return False
+
+    def add_resource(self):
+        resource_id = input("Enter resource ID: ")
+        title = input("Enter title: ")
+        author = input("Enter author: ")
+        category = input("Enter category (e.g., book, magazine, DVD): ")
+        quantity = int(input("Enter quantity: "))
+        self.resources[resource_id] = {
+            "title": title,
+            "author": author,
+            "category": category,
+            "quantity": quantity
+        }
+        print(f"Resource '{title}' added successfully.")
+
+    def check_out_resource(self):
+        resource_id = input("Enter resource ID to check out: ")
+        if resource_id in self.resources and self.resources[resource_id]["quantity"] > 0:
+            user = input("Enter user name: ")
+            self.resources[resource_id]["quantity"] -= 1
+            if resource_id in self.checked_out:
+                self.checked_out[resource_id].append(user)
+            else:
+                self.checked_out[resource_id] = [user]
+            print(f"Resource '{self.resources[resource_id]['title']}' checked out to {user}.")
+        else:
+            print("Resource not available or out of stock.")
+
+    def return_resource(self):
+        resource_id = input("Enter resource ID to return: ")
+        user = input("Enter user name: ")
+        if resource_id in self.checked_out and user in self.checked_out[resource_id]:
+            self.checked_out[resource_id].remove(user)
+            self.resources[resource_id]["quantity"] += 1
+            print(f"Resource '{self.resources[resource_id]['title']}' returned by {user}.")
+        else:
+            print("Invalid return. Either resource ID or user is incorrect.")
+
+    def search_resources(self):
+        search_term = input("Enter title, author, or category to search: ").lower()
+        results = [
+            resource for resource in self.resources.values()
+            if search_term in resource["title"].lower() or
+               search_term in resource["author"].lower() or
+               search_term in resource["category"].lower()
+        ]
+        if results:
+            print("Search Results:")
+            for res in results:
+                print(f"Title: {res['title']}, Author: {res['author']}, Category: {res['category']}, Quantity: {res['quantity']}")
+        else:
+            print("No resources found matching the search criteria.")
+
+    def display_overdue_fines(self):
+        print("Overdue fines management is not implemented in this version.")
+
+    def run(self):
+        authenticated = False
+        while not authenticated:
+            authenticated = self.authenticate_user()
+        while True:
+            print("\nLibrary Management System")
+            print("1. Add Resource")
+            print("2. Check Out Resource")
+            print("3. Return Resource")
+            print("4. Search Resources")
+            print("5. Display Overdue Fines")
+            print("6. Exit")
+            choice = input("Enter your choice (1-6): ")
+
+            if choice == "1":
+                self.add_resource()
+            elif choice == "2":
+                self.check_out_resource()
+            elif choice == "3":
+                self.return_resource()
+            elif choice == "4":
+                self.search_resources()
+            elif choice == "5":
+                self.display_overdue_fines()
+            elif choice == "6":
+                print("Exiting Library Management System.")
+                break
+            else:
+                print("Invalid choice. Please select a valid option.")
+
+lms = LibraryManagementSystem()
+lms.run()
